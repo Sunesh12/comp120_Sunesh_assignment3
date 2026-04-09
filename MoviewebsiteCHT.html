@@ -163,7 +163,18 @@ const movies2026 = [
 ];
 
 function login(){
+    let user = document.getElementById("username").value;
+    let pass = document.getElementById("password").value;
+
+    if(!user || !pass) return;
+
     isCritic = false;
+
+    // ✅ Add user to viewersDB if not already there
+    if(!viewersDB.some(u => u.username === user)){
+        viewersDB.push({username: user, password: pass});
+    }
+
     document.getElementById("loginContainer").style.display="none";
     document.getElementById("navbar").style.display="block";
     document.getElementById("title").style.display="block";
@@ -172,7 +183,18 @@ function login(){
 }
 
 function loginAsCritic(){
+    let user = document.getElementById("username").value;
+    let pass = document.getElementById("password").value;
+
+    if(!user || !pass) return;
+
     isCritic = true;
+
+    // ✅ Add user to criticsDB if not already there
+    if(!criticsDB.some(u => u.username === user)){
+        criticsDB.push({username: user, password: pass});
+    }
+
     document.getElementById("loginContainer").style.display="none";
     document.getElementById("navbar").style.display="block";
     document.getElementById("title").style.display="block";
