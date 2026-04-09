@@ -1,2 +1,2 @@
-# comp120_Sunesh_assignment3
-COMP120_Sunesh_versioncontrol
+#Final_Project
+This is the reporsitory for the final Your Home Theater.
