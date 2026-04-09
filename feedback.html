@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback — Home Theatre</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stars"></div>
+
+  <nav class="navbar">
+    <a class="navbar-logo" href="home.html">🎬 HOME<span>THEATRE</span></a>
+    <div class="nav-links">
+      <a class="nav-btn" href="home.html">My Movies</a>
+      <a class="nav-btn" href="watchlater.html">Watch Later</a>
+      <a class="nav-btn" href="recommended.html">Recommended</a>
+      <a class="nav-btn" href="movies2026.html">2026 Movies</a>
+      <a class="nav-btn active" href="feedback.html">Feedback</a>
+      <button class="nav-btn logout" href="login.html" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+    <div class="feedback-wrap">
+      <h1>Your <span>Feedback</span></h1>
+      <p>Have suggestions or ideas? We'd love to hear from you.</p>
+
+      <textarea class="feedback-textarea" id="feedbackText" placeholder="Share your thoughts, suggestions, or report an issue..."></textarea>
+      <br>
+      <button class="submit-btn" onclick="submitFeedback()">Submit Feedback</button>
+
+      <div class="feedback-list" id="feedbackList"></div>
+    </div>
+  </div>
+
+  <script src="../app.js"></script>
+  <script>
+    requireLogin('../index.html');
+    initStars('stars');
+
+    function renderFeedback() {
+      const list = Store.get('feedbackList') || [];
+      const container = document.getElementById('feedbackList');
+      if (list.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = list.map(f => `
+        <div class="feedback-item">${f}</div>
+      `).join('');
+    }
+
+    function submitFeedback() {
+      const text = document.getElementById('feedbackText').value.trim();
+      if (!text) return;
+      const list = Store.get('feedbackList') || [];
+      list.push(text);
+      Store.set('feedbackList', list);
+      document.getElementById('feedbackText').value = '';
+      renderFeedback();
+    }
+
+    renderFeedback();
+  </script>
+</body>
+</html>
