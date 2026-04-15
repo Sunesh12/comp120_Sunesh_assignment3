@@ -51,13 +51,49 @@ button:hover { background:#2563eb; }
 <div class="login-container" id="loginContainer" style="flex-direction: column;">
     <h1 style="text-align:center; margin-bottom:100px;">🎬 Your Home Theatre 🎬</h1>
     <div class="login-box">
-        <h2>Login</h2>
-        <input id="username" placeholder="Username">
-        <input id="password" type="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-        <p onclick="alert('Sign Up clicked')">Sign Up</p>
-        <p onclick="alert('Forgot Password clicked')">Forgot Password</p>
-        <p onclick="loginAsCritic()">Sign Up as Critic</p>
+
+        <!-- LOGIN PANEL -->
+        <div id="panelLogin">
+            <h2>Login</h2>
+            <input id="username" placeholder="Username">
+            <input id="password" type="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <p id="loginError" style="color:red;display:none;font-size:13px;">Incorrect username or password.</p>
+            <p onclick="showPanel('panelCreate')">Create Account</p>
+            <p onclick="showPanel('panelForgot')">Forgot Password</p>
+            <p onclick="loginAsCritic()">Sign Up as Critic</p>
+        </div>
+
+        <!-- CREATE ACCOUNT PANEL -->
+        <div id="panelCreate" style="display:none;">
+            <h2>Create Account</h2>
+            <input id="newUser" placeholder="Choose a Username">
+            <input id="newPass" type="password" placeholder="Choose a Password">
+            <input id="newPass2" type="password" placeholder="Confirm Password">
+            <button onclick="createAccount()">Create Account</button>
+            <p id="createMsg" style="color:red;display:none;font-size:13px;"></p>
+            <p onclick="showPanel('panelLogin')">&#8592; Back to Login</p>
+        </div>
+
+        <!-- FORGOT PASSWORD PANEL -->
+        <div id="panelForgot" style="display:none;">
+            <h2>Forgot Password</h2>
+            <div id="forgotStep1">
+                <p style="font-size:13px;color:#93c5fd;">Enter your username to reset your password.</p>
+                <input id="forgotUser" placeholder="Your Username">
+                <button onclick="forgotLookup()">Continue</button>
+                <p id="forgotMsg" style="color:red;display:none;font-size:13px;"></p>
+            </div>
+            <div id="forgotStep2" style="display:none;">
+                <p style="font-size:13px;color:#93c5fd;">Enter a new password for <strong id="forgotUserLabel"></strong></p>
+                <input id="forgotNewPass" type="password" placeholder="New Password">
+                <input id="forgotNewPass2" type="password" placeholder="Confirm New Password">
+                <button onclick="resetPassword()">Reset Password</button>
+                <p id="forgotMsg2" style="color:red;display:none;font-size:13px;"></p>
+            </div>
+            <p onclick="showPanel('panelLogin')">&#8592; Back to Login</p>
+        </div>
+
     </div>
 </div>
 
@@ -162,19 +198,94 @@ const movies2026 = [
     {title:"Ice Age 6 (2026)", img:"https://image.tmdb.org/t/p/w500/yrpPYKijwdMHyTGIOd1iK1h0Xno.jpg"}
 ];
 
+// ── PANEL SWITCHER ──────────────────────────────────────────
+function showPanel(id){
+    ['panelLogin','panelCreate','panelForgot'].forEach(p=>{
+        document.getElementById(p).style.display = (p===id) ? 'block' : 'none';
+    });
+    // Reset forgot-password back to step 1 whenever panel opens
+    if(id==='panelForgot'){
+        document.getElementById('forgotStep1').style.display='block';
+        document.getElementById('forgotStep2').style.display='none';
+        document.getElementById('forgotUser').value='';
+        document.getElementById('forgotMsg').style.display='none';
+    }
+}
+
+// ── CREATE ACCOUNT ───────────────────────────────────────────
+function createAccount(){
+    let user = document.getElementById('newUser').value.trim();
+    let pass = document.getElementById('newPass').value;
+    let pass2 = document.getElementById('newPass2').value;
+    let msg  = document.getElementById('createMsg');
+
+    if(!user || !pass){
+        msg.innerText='Please fill in all fields.'; msg.style.display='block'; return;
+    }
+    if(pass !== pass2){
+        msg.innerText='Passwords do not match.'; msg.style.display='block'; return;
+    }
+    let taken = viewersDB.find(u=>u.username===user) || criticsDB.find(u=>u.username===user)
+                || (user===adminCreds.username);
+    if(taken){
+        msg.innerText='Username already taken. Choose another.'; msg.style.display='block'; return;
+    }
+    // All good — add to viewersDB and log in
+    viewersDB.push({username:user, password:pass});
+    msg.style.display='none';
+    // Pre-fill login and switch to login panel with success note
+    document.getElementById('username').value = user;
+    document.getElementById('password').value = pass;
+    isCritic = false;
+    document.getElementById('loginContainer').style.display='none';
+    document.getElementById('navbar').style.display='block';
+    document.getElementById('title').style.display='block';
+    closeSidebar();
+    openTab('myMovies');
+}
+
+// ── FORGOT PASSWORD ──────────────────────────────────────────
+function forgotLookup(){
+    let user = document.getElementById('forgotUser').value.trim();
+    let msg  = document.getElementById('forgotMsg');
+    if(!user){ msg.innerText='Please enter your username.'; msg.style.display='block'; return; }
+    let found = viewersDB.find(u=>u.username===user) || criticsDB.find(u=>u.username===user);
+    if(!found){ msg.innerText='No account found with that username.'; msg.style.display='block'; return; }
+    msg.style.display='none';
+    document.getElementById('forgotUserLabel').innerText = user;
+    document.getElementById('forgotStep1').style.display='none';
+    document.getElementById('forgotStep2').style.display='block';
+}
+
+function resetPassword(){
+    let user  = document.getElementById('forgotUserLabel').innerText;
+    let pass  = document.getElementById('forgotNewPass').value;
+    let pass2 = document.getElementById('forgotNewPass2').value;
+    let msg   = document.getElementById('forgotMsg2');
+    if(!pass){ msg.innerText='Please enter a new password.'; msg.style.display='block'; return; }
+    if(pass !== pass2){ msg.innerText='Passwords do not match.'; msg.style.display='block'; return; }
+    // Update password in whichever DB holds this user
+    let v = viewersDB.find(u=>u.username===user);
+    if(v){ v.password = pass; }
+    let c = criticsDB.find(u=>u.username===user);
+    if(c){ c.password = pass; }
+    msg.style.display='none';
+    alert('Password reset successfully! You can now log in with your new password.');
+    showPanel('panelLogin');
+}
+
 function login(){
     let user = document.getElementById("username").value;
     let pass = document.getElementById("password").value;
-
-    if(!user || !pass) return;
-
-    isCritic = false;
-
-    // ✅ Add user to viewersDB if not already there
-    if(!viewersDB.some(u => u.username === user)){
-        viewersDB.push({username: user, password: pass});
+    let validViewer = viewersDB.find(u => u.username === user && u.password === pass);
+    let validCritic = criticsDB.find(u => u.username === user && u.password === pass);
+    let validAdmin = (user === adminCreds.username && pass === adminCreds.password);
+    if(!validViewer && !validCritic && !validAdmin){
+        document.getElementById("loginError").style.display = "block";
+        return;
     }
-
+    document.getElementById("loginError").style.display = "none";
+    isCritic = !!validCritic;
     document.getElementById("loginContainer").style.display="none";
     document.getElementById("navbar").style.display="block";
     document.getElementById("title").style.display="block";
@@ -183,18 +294,7 @@ function login(){
 }
 
 function loginAsCritic(){
-    let user = document.getElementById("username").value;
-    let pass = document.getElementById("password").value;
-
-    if(!user || !pass) return;
-
     isCritic = true;
-
-    // ✅ Add user to criticsDB if not already there
-    if(!criticsDB.some(u => u.username === user)){
-        criticsDB.push({username: user, password: pass});
-    }
-
     document.getElementById("loginContainer").style.display="none";
     document.getElementById("navbar").style.display="block";
     document.getElementById("title").style.display="block";
