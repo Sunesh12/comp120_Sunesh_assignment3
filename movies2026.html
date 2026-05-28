@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 Movies — Home Theatre</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stars"></div>
+
+  <nav class="navbar">
+    <a class="navbar-logo" href="home.html">🎬 HOME<span>THEATRE</span></a>
+    <div class="nav-links">
+      <a class="nav-btn" href="home.html">My Movies</a>
+      <a class="nav-btn" href="watchlater.html">Watch Later</a>
+      <a class="nav-btn" href="recommended.html">Recommended</a>
+      <a class="nav-btn active" href="movies2026.html">2026 Movies</a>
+      <a class="nav-btn" href="feedback.html">Feedback</a>
+      <button class="nav-btn logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+    <div class="page-header">
+      <h1><span>2026</span> Movies</h1>
+      <p>Upcoming and most anticipated releases of 2026.</p>
+    </div>
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" placeholder="🔍 Search 2026 movies..." oninput="renderGallery()">
+    </div>
+    <div class="gallery" id="gallery"></div>
+  </div>
+
+  <script src="../app.js"></script>
+  <script>
+    requireLogin('../index.html');
+    initStars('stars');
+    injectSidebarHTML();
+
+    function renderGallery() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = movies2026.filter(m => m.title.toLowerCase().includes(query));
+      const gallery = document.getElementById('gallery');
+
+      if (filtered.length === 0) {
+        gallery.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔍</div><h3>No Results</h3><p>Try a different search.</p></div>`;
+        return;
+      }
+
+      gallery.innerHTML = filtered.map((m, i) => `
+        <div class="movie-card" onclick='openSidebar(${movies2026.indexOf(m)})'>
+          <img src="${m.img}" alt="${m.title}" loading="lazy">
+          <div class="card-title">${m.title}</div>
+        </div>`).join('');
+    }
+
+    function openSidebar(i) {
+      buildSidebar(movies2026[i], '2026');
+    }
+
+    renderGallery();
+  </script>
+</body>
+</html>
