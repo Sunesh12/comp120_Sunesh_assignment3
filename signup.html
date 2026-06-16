@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — Your Home Theatre</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stars"></div>
+
+  <div class="auth-page page-wrap">
+    <div class="auth-box">
+      <div class="auth-logo">🎬 HOME<span>THEATRE</span></div>
+      <p class="auth-subtitle">Create your account to get started.</p>
+
+      <div class="auth-error" id="signupError"></div>
+
+      <div class="auth-field">
+        <label>Username</label>
+        <input class="auth-input" id="username" placeholder="Choose a username">
+      </div>
+      <div class="auth-field">
+        <label>Email</label>
+        <input class="auth-input" id="email" type="email" placeholder="your@email.com">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input class="auth-input" id="password" type="password" placeholder="Create a password">
+      </div>
+      <div class="auth-field">
+        <label>Confirm Password</label>
+        <input class="auth-input" id="confirm" type="password" placeholder="Repeat password">
+      </div>
+
+      <button class="auth-btn-main" onclick="signup()">Create Account</button>
+      <button class="auth-btn-critic" onclick="signupAsCritic()">🎙 Sign Up as Critic</button>
+
+      <div class="auth-link" style="margin-top:20px;">
+        Already have an account? <a href="../index.html">Login</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="../app.js"></script>
+  <script>
+    initStars('stars');
+
+    function showError(msg) {
+      const el = document.getElementById('signupError');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function doSignup(role) {
+      const u = document.getElementById('username').value.trim();
+      const e = document.getElementById('email').value.trim();
+      const p = document.getElementById('password').value;
+      const c = document.getElementById('confirm').value;
+      if (!u || !e || !p || !c) return showError('Please fill in all fields.');
+      if (p !== c) return showError('Passwords do not match.');
+      if (p.length < 4) return showError('Password must be at least 4 characters.');
+      Store.set('user', { username: u, email: e, role });
+      window.location.href = 'home.html';
+    }
+
+    function signup() { doSignup('user'); }
+    function signupAsCritic() { doSignup('critic'); }
+  </script>
+</body>
+</html>
