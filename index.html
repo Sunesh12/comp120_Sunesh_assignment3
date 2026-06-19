@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Your Home Theatre</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stars"></div>
+
+  <div class="auth-page page-wrap">
+    <div class="auth-box">
+      <div class="auth-logo">🎬 HOME<span>THEATRE</span></div>
+      <p class="auth-subtitle">Welcome back. Sign in to continue.</p>
+
+      <div class="auth-error" id="loginError">Invalid username or password.</div>
+
+      <div class="auth-field">
+        <label>Username</label>
+        <input class="auth-input" id="username" placeholder="Enter username" autocomplete="username">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input class="auth-input" id="password" type="password" placeholder="Enter password" autocomplete="current-password">
+      </div>
+
+      <button class="auth-btn-main" onclick="login()">Login</button>
+      <button class="auth-btn-critic" onclick="loginAsCritic()">🎙 Sign in as Critic</button>
+
+      <div class="auth-divider">or</div>
+
+      <div class="auth-link">
+        Don't have an account? <a href="pages/signup.html">Sign Up</a>
+      </div>
+      <div class="auth-link" style="margin-top:8px;">
+        <a href="#" onclick="alert('Password reset coming soon!')">Forgot Password?</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    initStars('stars');
+
+    // Redirect if already logged in
+    if (isLoggedIn()) window.location.href = 'pages/home.html';
+
+    function login() {
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+      if (!u || !p) {
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('loginError').textContent = 'Please fill in all fields.';
+        return;
+      }
+      // Simple auth — any non-empty credentials work
+      Store.set('user', { username: u, role: 'user' });
+      window.location.href = 'pages/home.html';
+    }
+
+    function loginAsCritic() {
+      const u = document.getElementById('username').value.trim() || 'Critic';
+      Store.set('user', { username: u, role: 'critic' });
+      window.location.href = 'pages/home.html';
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+  </script>
+</body>
+</html>
